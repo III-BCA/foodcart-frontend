@@ -2,9 +2,9 @@ name: Frontend CI/CD
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main,master ]
   push:
-    branches: [ main ]
+    branches: [ main ,master]
 
 jobs:
 
@@ -35,6 +35,7 @@ jobs:
         run: |
           npx sonar-scanner \
             -Dsonar.projectKey=III-BCA_foodcart-frontend \
+            -Dsonar.organization=iii-bca \
             -Dsonar.sources=src \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN2 }}
