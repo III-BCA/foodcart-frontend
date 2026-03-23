@@ -13,9 +13,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: foodcart-ui
+    
 
     steps:
       - name: Checkout
@@ -50,10 +48,7 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: foodcart-ui
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
