@@ -24,7 +24,9 @@ jobs:
         with:
           node-version: 18
 
-      
+      - name: Install deps
+        run: npm ci
+        working-directory: .
 
       - name: Build React App
         run: npm run build
@@ -57,7 +59,8 @@ jobs:
         with:
           node-version: 18
 
-      
+      - name: Install deps
+        run: npm ci
 
       - name: Build React App
         run: npm run build
