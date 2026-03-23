@@ -1,0 +1,90 @@
+name: Frontend CI/CD
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - foodcart-ui/**
+  push:
+    branches: [ main ]
+    paths:
+      - foodcart-ui/**
+
+jobs:
+
+  # 🔹 PR → Sonar + Build Docker (validation)
+  pr-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: foodcart-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build React App
+        run: npm run build
+
+      - name: SonarQube Analysis
+        run: |
+          npx sonar-scanner \
+            -Dsonar.projectKey=foodcart-frontend \
+            -Dsonar.sources=src \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      - name: Build Docker Image (PR check)
+        run: docker build -t frontend-test .
+
+
+
+  # 🔹 Merge → Build + Push + Deploy
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: foodcart-ui
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build React App
+        run: npm run build
+
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/foodcart-frontend:latest .
+
+      - name: Push Docker Image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/foodcart-frontend:latest
+
+      - name: Deploy to Azure Web App (Container)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: your-frontend-app-name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: ${{ secrets.DOCKER_USERNAME }}/foodcart-frontend:latest
