@@ -25,7 +25,7 @@ jobs:
           node-version: 18
 
       - name: Install deps
-        run: npm install
+        run: npm ci
 
       - name: Build React App
         run: npm run build
