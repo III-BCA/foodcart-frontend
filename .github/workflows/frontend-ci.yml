@@ -3,12 +3,8 @@ name: Frontend CI/CD
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - foodcart-ui/**
   push:
     branches: [ main ]
-    paths:
-      - foodcart-ui/**
 
 jobs:
 
